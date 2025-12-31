@@ -1,1 +1,1 @@
-cc -Wall -Werror -Wextra microshell; mv a.out microshell
+cc -Wall -Werror -Wextra microshell.c; mv a.out microshell
