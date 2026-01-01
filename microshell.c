@@ -50,11 +50,22 @@ int	exec(char **argv, int i, int has_pipe, char **envp)
 	return (0);
 }
 
+// This function is optional to exam, this part is just for the Github repository
+void	print_usage()
+{
+	print_error("Usage: ./microshell [command1 args1 ; command2 args2 | command3 args3 ...]\n");
+	print_error("Commands are separated by ';'.\n");
+	print_error("Pipes '|' can be used to connect commands.\n");
+	print_error("Built-in command: cd [directory]\n");
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int	i = 0;
-	(void)argc;
+	(void)argc; // Needed to compile to exam
 
+	if (argc < 2)                  // Optional to exam, this part is just for the Github repository
+		return (print_usage(), 0); // Optional to exam, this part is just for the Github repository
     argv++;
 	while (argv[i])
 	{
