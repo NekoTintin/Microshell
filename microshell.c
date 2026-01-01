@@ -3,26 +3,32 @@
 #include <sys/wait.h>
 #include <string.h>
 
-void	print_error(char *str)
+void	print_error(char *err, char *file)
 {
-	while (*str)
-		write(2, str++, 1);
+	while (*err)
+		write(2, err++, 1);
+	if (file)
+	{
+		write(2, " ", 1);
+		while (*file)
+			write(2, file++, 1);
+	}
+	write(2, "\n", 1);
 }
 
 int	mini_cd(char **argv, int nargs)
 {
 	if (nargs != 2)
-		return (print_error("error: cd: bad arguments\n"), 1);
+		return (print_error("error: cd: bad arguments", NULL), 1);
 	if (chdir(argv[1]) != 0)
-		return (print_error("error: cd: cannot change directory to "),
-			print_error(argv[1]), print_error("\n"), 1);
+		return (print_error("error: cd: cannot change directory to", argv[1]), 1);
 	return (0);
 }
 
 void	set_pipe(int has_pipe, int *fd, int stdfd)
 {
 	if (has_pipe && (dup2(fd[stdfd], stdfd) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1))
-		print_error("error: fatal\n"), print_error("\n"), exit(1);
+		print_error("error: fatal\n", NULL), exit(1);
 }
 
 int	exec(char **argv, int i, int has_pipe, char **envp)
@@ -30,12 +36,10 @@ int	exec(char **argv, int i, int has_pipe, char **envp)
 	int		fd[2];
 	int		pid;
 
-    if (strcmp(argv[0], ";") == 0)
-		return (0);
-	if (!has_pipe && strcmp(argv[0], "cd") == 0)
+	if (strcmp(argv[0], "cd") == 0)
 		return (mini_cd(argv, i));
 	if ((has_pipe && pipe(fd) == -1) || (pid = fork()) == -1)
-		print_error("error: fatal"), exit(1);
+		print_error("error: fatal", NULL), exit(1);
 	if (pid == 0)
 	{
 		argv[i] = NULL;
@@ -43,7 +47,7 @@ int	exec(char **argv, int i, int has_pipe, char **envp)
 		if (strcmp(argv[0], "cd") == 0)
 			exit (mini_cd(argv, i));
 		if (execve(argv[0], argv, envp) == -1)
-			print_error("error: cannot execute "), print_error(argv[0]), print_error("\n"), exit(1);
+			print_error("error: cannot execute", argv[0]), exit(1);
 	}
 	waitpid(pid, 0, 0);
 	set_pipe(has_pipe, fd, 0);
@@ -53,10 +57,10 @@ int	exec(char **argv, int i, int has_pipe, char **envp)
 // This function is optional to exam, this part is just for the Github repository
 void	print_usage()
 {
-	print_error("Usage: ./microshell [command1 args1 ; command2 args2 | command3 args3 ...]\n");
-	print_error("Commands are separated by ';'.\n");
-	print_error("Pipes '|' can be used to connect commands.\n");
-	print_error("Built-in command: cd [directory]\n");
+	print_error("Usage: ./microshell [command1 args1 ; command2 args2 | command3 args3 ...]\n", NULL);
+	print_error("Commands are separated by ';'.\n", NULL);
+	print_error("Pipes '|' can be used to connect commands.\n", NULL);
+	print_error("Built-in command: cd [directory]\n", NULL);
 }
 
 int	main(int argc, char **argv, char **envp)

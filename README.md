@@ -36,7 +36,7 @@ Redirige la sortie standard d'une commande vers l'entrée de la suivante.
 ## Compilation et tests
 ### Compilation
 ```bash
-bash compile.sh
+make
 ```
 Compile avec les flags `-Wall -Werror -Wextra`.
 
