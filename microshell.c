@@ -25,42 +25,40 @@ int	mini_cd(char **argv, int nargs)
 	return (0);
 }
 
-void	set_pipe(int has_pipe, int *fd, int stdfd)
+void	set_pipe(int has_pipe, int *fds, int stdfd)
 {
-	if (has_pipe && (dup2(fd[stdfd], stdfd) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1))
+	if (has_pipe && (dup2(fds[stdfd], stdfd) == -1 || close(fds[0]) == -1 || close(fds[1]) == -1))
 		print_error("error: fatal\n", NULL), exit(1);
 }
 
 int	exec(char **argv, int i, int has_pipe, char **envp)
 {
-	int		fd[2];
+	int		fds[2];
 	int		pid;
 
 	if (strcmp(argv[0], "cd") == 0)
 		return (mini_cd(argv, i));
-	if ((has_pipe && pipe(fd) == -1) || (pid = fork()) == -1)
+	if ((has_pipe && pipe(fds) == -1) || (pid = fork()) == -1)
 		print_error("error: fatal", NULL), exit(1);
 	if (pid == 0)
 	{
 		argv[i] = NULL;
-		set_pipe(has_pipe, fd, 1);
-		if (strcmp(argv[0], "cd") == 0)
-			exit (mini_cd(argv, i));
+		set_pipe(has_pipe, fds, 1);
 		if (execve(argv[0], argv, envp) == -1)
 			print_error("error: cannot execute", argv[0]), exit(1);
 	}
 	waitpid(pid, 0, 0);
-	set_pipe(has_pipe, fd, 0);
+	set_pipe(has_pipe, fds, 0);
 	return (0);
 }
 
 // This function is optional to exam, this part is just for the Github repository
 void	print_usage()
 {
-	print_error("Usage: ./microshell [command1 args1 ; command2 args2 | command3 args3 ...]\n", NULL);
-	print_error("Commands are separated by ';'.\n", NULL);
-	print_error("Pipes '|' can be used to connect commands.\n", NULL);
-	print_error("Built-in command: cd [directory]\n", NULL);
+	print_error("Usage: ./microshell [command1 args1 ; command2 args2 | command3 args3 ...]", NULL);
+	print_error("Commands are separated by ';'.", NULL);
+	print_error("Pipes '|' can be used to connect commands.", NULL);
+	print_error("Built-in command: cd [directory]", NULL);
 }
 
 int	main(int argc, char **argv, char **envp)
